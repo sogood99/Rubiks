@@ -294,60 +294,75 @@ class Rubiks:
         return color
 
 class RubiksSequence():
-    def __init__(self, initialState:Rubiks = None):
-        if (initialState == None):
-            self.sequence = np.array([])
-        else:
-            self.sequence = [initialState]
-    def add(self, rubiksState:Rubiks)->"RubiksSequence":
-        newRubSeq = deepcopy(self)
-        newRubSeq.addSelf(rubiksState)
-        return newRubSeq
-    def addSelf(self, rubiksState:Rubiks)->None:
-        self.sequence.append(rubiksState)
-    def getLast(self)->Rubiks:
-        if (len(self.sequence)):
-            return self.sequence[-1]
-        return None
+    def __init__(self, rub:Rubiks):
+        self.rubiks = rub
+        self.previous = []
 
+    def add(self, rubiksState:Rubiks)->None:
+        self.previous.append(rubiksState)
 
 class RubiksBFS():
     def __init__(self, initState:Rubiks):
         self.depth:int = 0
         self.size = initState.size
         self.accessedState = {initState: True}
-        self.sequences:List[RubiksSequence] = np.array([RubiksSequence(initState)])
+        self.sequences:List[List[RubiksSequence]] = [[RubiksSequence(initState)]]
         self.solvedSeq = []
 
     def runSingleBFS(self)->bool:
         while (1):
             if (self._checkSequences()):
                 return True
-            print("Depth =", self.depth, "Size of Sequence =", len(self.sequences))
-            self.depth += 1
-            nextSequence:List[RubiksSequence] = []
+            self.sequences.append([])
+
+            print("Depth =", self.depth, "Size of Sequence =",len(self.sequences[self.depth]))
             count = 0
-            for seq in self.sequences:
+
+            currentAccessedState:List[Rubiks] = []
+
+            for seq in self.sequences[self.depth]:
                 for dir in direction:
                     for n in range(self.size):
                         for bl in [True, False]:
-                            count += 1
-                            print("Count:", count, end = "\r")
-                            last = seq.getLast()
-                            nextRub = last.action(dir = dir, num=n, isRev= bl)
+                            count+=1
+                            print("Count =", count, end="\r")
+                            lastRub = seq.rubiks
+                            nextRub = lastRub.action(dir = dir, num=n, isRev= bl)
+
                             gt = self.accessedState.get(nextRub)
                             if (gt == None):
                                 self.accessedState[nextRub] = True
-                                nextSequence.append(seq.add(nextRub))
-            if (not len(nextSequence)):
+
+                                notAccessed = True
+
+                                for newSeq in self.sequences[self.depth+1]:
+                                    if (newSeq.rubiks == nextRub):
+                                        notAccessed = False
+                                        newSeq.previous.append(lastRub)
+                                        break
+
+                                if (notAccessed):
+                                    currentAccessedState.append(nextRub)
+                                    self.sequences[self.depth+1].append(RubiksSequence(nextRub))
+            self.depth += 1
+
+            if (not len(self.sequences[self.depth])):
                 print("Unsolvable")
                 return False
-            self.sequences = nextSequence
+
+            for accessesed in currentAccessedState:
+                self.accessedState[accessesed] = True
+
+    def __len__(self):
+        return self.depth
+
+    def runDoubleBFS(self)->bool:
+        pass
 
     def _checkSequences(self)->bool:
         self.solvedSeq = []
-        for seq in self.sequences:
-            rub = seq.getLast()
+        for seq in self.sequences[self.depth]:
+            rub = seq.rubiks
             if (rub.ifSolved()):
                 self.solvedSeq.append(seq)
         return (len(self.solvedSeq))

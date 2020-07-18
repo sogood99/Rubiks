@@ -1,35 +1,14 @@
-from rubiks import *
+from rubiksgui import *
 
-rub = Rubiks(2)
+a = QApplication(sys.argv)
 
-rub.config[0][0][0] = color.red
-rub.config[0][1][0] = color.red
-rub.config[0][0][1] = color.green
-rub.config[0][1][1] = color.green
-rub.config[3][0][0] = color.green
-rub.config[3][1][0] = color.green
-rub.config[3][0][1] = color.orange
-rub.config[3][1][1] = color.orange
-rub.config[4][0][0] = color.yellow
-rub.config[4][1][0] = color.yellow
-rub.config[4][0][1] = color.yellow
-rub.config[4][1][1] = color.yellow
-rub.config[5][0][0] = color.white
-rub.config[5][1][0] = color.white
-rub.config[5][0][1] = color.white
-rub.config[5][1][1] = color.white
-rub.config[1][0][0] = color.blue
-rub.config[1][1][0] = color.blue
-rub.config[1][0][1] = color.red
-rub.config[1][1][1] = color.red
-rub.config[2][0][0] = color.orange
-rub.config[2][1][0] = color.orange
-rub.config[2][0][1] = color.blue
-rub.config[2][1][1] = color.blue
+w = QMainWindow()
+rub = RubiksGui(w, 3)
 
-rub.actionSelf(direction.vert, False, 1)
-rub.actionSelf(direction.vert, False, 1)
-print()
-# rubB = RubiksBFS(rub)
-# print(rubB.runBFS())
+w.show()
+w.setGeometry(200,200,1200,800)
+w.setWindowTitle("Rubiks")
+w.setCentralWidget(rub)
+w.setFixedSize(w.size())
 
+a.exec_()
