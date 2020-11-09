@@ -1,2 +1,2 @@
 # Rubiks
-Rubiks cube class with solver and gui.
+Rubik cube class with solver and GUI.
